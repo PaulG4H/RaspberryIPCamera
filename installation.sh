@@ -45,7 +45,7 @@ sudo apt-get update && sudo apt-get -y dist-upgrade
 ########################################################################################
 # Download a copy of our git repository and extract it.
 ########################################################################################
-wget -O /home/pi/RaspberryIPCamera.zip https://github.com/ronnyvdbr/RaspberryIPCamera/archive/v1.7-beta.zip
+wget -O /home/pi/RaspberryIPCamera.zip https://github.com/ronnyvdbr/RaspberryIPCamera/archive/v1.8-beta.zip
 unzip /home/pi/RaspberryIPCamera.zip -d /home/pi
 rm /home/pi/RaspberryIPCamera.zip
 mv /home/pi/RaspberryIPCamera* /home/pi/RaspberryIPCamera
@@ -54,7 +54,7 @@ mv /home/pi/RaspberryIPCamera* /home/pi/RaspberryIPCamera
 # Set-up nginx with php support and enable our Raspberry IP Camera website.
 ########################################################################################
 # Install nginx with php support.
-sudo apt-get -y install nginx php5-fpm
+sudo apt-get -y install nginx php-fpm
 # Disable the default nginx website.
 sudo rm /etc/nginx/sites-enabled/default
 # Copy our siteconf into place
@@ -62,7 +62,7 @@ sudo cp /home/pi/RaspberryIPCamera/DefaultConfigFiles/RaspberryIPCamera.Nginx.Si
 # Lets enable our website
 sudo ln -s /etc/nginx/sites-available/RaspberryIPCamera.Nginx.Siteconf /etc/nginx/sites-enabled/RaspberryIPCamera.Nginx.Siteconf
 # Disable output buffering in php.
-sudo sed -i 's/output_buffering = 4096/;output_buffering = 4096/g' /etc/php5/fpm/php.ini
+sudo sed -i 's/output_buffering = 4096/;output_buffering = 4096/g' /etc/php/7.0/fpm/php.ini
 # Set permissions for the config files
 sudo chgrp www-data /home/pi/RaspberryIPCamera/www/RaspberryIPCameraSettings.ini
 chmod 664 /home/pi/RaspberryIPCamera/www/RaspberryIPCameraSettings.ini
@@ -74,12 +74,12 @@ chmod 664 /home/pi/RaspberryIPCamera/secret/RaspberryIPCamera.secret
 ########################################################################################
 # Add the supplier's repository key to our key database
 curl http://www.linux-projects.org/listing/uv4l_repo/lrkey.asc | sudo apt-key add -
-echo "deb http://www.linux-projects.org/listing/uv4l_repo/raspbian/ jessie main" | sudo tee -a /etc/apt/sources.list
+echo "deb http://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main" | sudo tee -a /etc/apt/sources.list
 sudo apt-get update
 # Now fetch and install the required modules.
-sudo apt-get -y install uv4l uv4l-raspicam
-sudo apt-get -y install uv4l-raspicam-extras
-sudo apt-get -y install uv4l-server
+sudo apt-get -y install uv4l uv4l-raspicam --allow-unauthenticated
+sudo apt-get -y install uv4l-raspicam-extras --allow-unauthenticated
+sudo apt-get -y install uv4l-server --allow-unauthenticated
 # Let's copy our own config files in place.
 sudo cp /home/pi/RaspberryIPCamera/DefaultConfigFiles/uv4l-raspicam.conf /etc/uv4l/uv4l-raspicam.conf
 sudo cp /home/pi/RaspberryIPCamera/DefaultConfigFiles/uv4l-server.conf /etc/uv4l/uv4l-server.conf
@@ -143,13 +143,13 @@ sudo ln -s /tmp /var/lib/dhcp
 sudo ln -s /tmp /var/spool
 sudo ln -s /tmp /var/lock
 sudo ln -s /tmp/resolv.conf /etc/resolv.conf
-sudo rm -rf /var/lib/php5/sessions
-sudo ln -s /tmp/phpsessions /var/lib/php5/sessions
+sudo rm -rf /var/lib/php/sessions
+sudo ln -s /tmp/phpsessions /var/lib/php/sessions
 # configure the boot options to be read-only on next boot
 sudo mount -o remount rw /boot
 echo "dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait fastboot noswap" | sudo tee /boot/cmdline.txt
 # we will now edit the fstab file using nano and add 3 more lines like describe below
-sudo nano /etc/fstab
+sudo vim /etc/fstab
 # Our /etc/fstab should look like the one below, copy and paste it
 proc            /proc           proc    defaults              0 0
 /dev/mmcblk0p1  /boot           vfat    ro,defaults           0 2
@@ -160,9 +160,9 @@ tmpfs           /tmp            tmpfs   nodev,nosuid          0 0
 # Modify service unit of nginx service to create log folder before starting, otherwise error
 sudo sed -i '20i\ExecStartPre=/bin/mkdir /var/log/nginx' /lib/systemd/system/nginx.service
 # Modify service unit of php5-fpm service to create a tmp folder to store sessions in, otherwise error
-sudo sed -i '8i\ExecStartPre=/bin/mkdir /tmp/phpsessions' /lib/systemd/system/php5-fpm.service
-sudo sed -i '9i\ExecStartPre=/bin/chgrp www-data /tmp/phpsessions' /lib/systemd/system/php5-fpm.service
-sudo sed -i '10i\ExecStartPre=/bin/chmod 775 /tmp/phpsessions' /lib/systemd/system/php5-fpm.service
+sudo sed -i '8i\ExecStartPre=/bin/mkdir /tmp/phpsessions' /lib/systemd/system/php7.0-fpm.service
+sudo sed -i '9i\ExecStartPre=/bin/chgrp www-data /tmp/phpsessions' /lib/systemd/system/php7.0-fpm.service
+sudo sed -i '10i\ExecStartPre=/bin/chmod 775 /tmp/phpsessions' /lib/systemd/system/php7.0-fpm.service
 # reboot your raspberry pi here, check if you are read only
 sudo reboot
 # log in again and check the mounts
