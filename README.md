@@ -18,7 +18,7 @@ Everyone can build the camera themselves according to the instruction manual in 
 
 http://ronnyvdbr.github.io/RaspberryIPCamera/
 
-
+2018-03-29 Install Script not working on Raspbian Stretch --> see Wiki for current update!
 
 
 
